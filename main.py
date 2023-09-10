@@ -1,4 +1,4 @@
-from flask import Flask, render_template,request, redirect, url_for
+from flask import Flask, render_template,request, redirect, url_for, jsonify
 from utils.fetch_weather_data import get_weather
 from utils.convert_to_celsius import convert
 from pymongo import MongoClient
@@ -10,10 +10,14 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 import io 
 
 from bson import ObjectId
+from flask_cors import CORS
+
+# x = lambda a : a + 10
 
 
 app = Flask(__name__)
 app.debug = True
+CORS(app)
 
 client = MongoClient("mongodb://localhost:27017")
 db = client['tenerife']
@@ -122,6 +126,14 @@ def tasks():
     tasks = list(tasks_collection.find())
 
     return render_template("tasks.html", tasks=tasks)
+
+
+@app.route("/api/tasks")
+def api_tasks():
+
+    tasks = list(tasks_collection.find({},{"_id":0}))
+
+    return jsonify({"data":tasks})
 
 
 
